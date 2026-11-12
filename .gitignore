@@ -8,6 +8,9 @@ Thumbs.db
 # Design reference exports (local only)
 ref/
 
+# Local design / planning docs
+docs/
+
 # Local preview / spec PDFs (not shipped with the plugin)
 BabyBrands_Mobile_Insurance_Preview.html
 BabyBrands_WordPress_Developer_Specification.pdf
