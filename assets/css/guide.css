@@ -1,0 +1,558 @@
+.bbib-shell {
+    --bbib-coral: #F47174;
+    --bbib-teal: #1A8F89;
+    --bbib-heading: #2F5F5C;
+    --bbib-ink: #2E3B3B;
+    --bbib-dark-btn: #3E5B59;
+    --bbib-cream: #FDF6E9;
+    --bbib-cream-amt: #FDF6E3;
+    --bbib-muted: #56666A;
+    --bbib-line: #E4EAEA;
+    --bbib-input: #A9B8B8;
+    --bbib-body: #3E4C4C;
+    box-sizing: border-box;
+    max-width: 390px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    color: var(--bbib-ink);
+    font: 400 14px/1.5 Inter, system-ui, sans-serif;
+    box-shadow: 0 4px 42px rgba(46, 59, 59, 0.07);
+}
+
+.bbib-shell *,
+.bbib-shell *::before,
+.bbib-shell *::after {
+    box-sizing: border-box;
+}
+
+.bbib-shell h1,
+.bbib-shell h2,
+.bbib-shell p,
+.bbib-shell fieldset {
+    margin: 0;
+    border: 0;
+    padding: 0;
+}
+
+.bbib-shell button,
+.bbib-shell input,
+.bbib-shell select {
+    font: inherit;
+    color: inherit;
+}
+
+.bbib-shell button {
+    cursor: pointer;
+}
+
+.bbib-shell select.bbib-select {
+    display: block !important;
+    width: 100%;
+    appearance: auto;
+}
+
+.bbib-shell .nice-select,
+.bbib-shell .select2,
+.bbib-shell .chosen-container {
+    display: none !important;
+}
+
+.bbib-header {
+    position: relative;
+    padding: 22px 20px 16px;
+    border-bottom: 1px solid var(--bbib-line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.bbib-logo {
+    width: 210px;
+    height: auto;
+    display: block;
+}
+
+.bbib-caption {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--bbib-ink);
+    text-transform: uppercase;
+}
+
+.bbib-accent {
+    position: absolute;
+    left: 50%;
+    bottom: -1px;
+    width: 44px;
+    height: 2px;
+    margin-left: -22px;
+    background: var(--bbib-coral);
+}
+
+.bbib-page {
+    padding: 16px 20px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.bbib-intro {
+    padding: 24px 20px;
+    color: var(--bbib-muted);
+}
+
+.bbib-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bbib-progress-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--bbib-ink);
+}
+
+.bbib-progress-bars {
+    display: flex;
+    gap: 4px;
+}
+
+.bbib-progress-bar {
+    width: 22px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--bbib-line);
+}
+
+.bbib-progress-bar.is-on {
+    background: var(--bbib-teal);
+}
+
+.bbib-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    background: var(--bbib-cream);
+    padding: 22px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bbib-hero::before {
+    content: "";
+    position: absolute;
+    top: -40px;
+    right: -52px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 22px solid #CDEDEA;
+}
+
+.bbib-hero h1 {
+    position: relative;
+    max-width: 260px;
+    font-family: Nunito, Inter, sans-serif;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 1.2;
+    color: var(--bbib-heading);
+}
+
+.bbib-hero p {
+    position: relative;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--bbib-body);
+}
+
+.bbib-hero-rule {
+    width: 36px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--bbib-coral);
+    margin-top: 6px;
+}
+
+.bbib-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bbib-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--bbib-ink);
+}
+
+.bbib-help {
+    font-size: 11px;
+    color: var(--bbib-muted);
+}
+
+.bbib-select,
+.bbib-input {
+    min-height: 46px;
+    border-radius: 8px;
+    border: 1px solid var(--bbib-input);
+    background: #fff;
+    padding: 0 12px;
+    font: 400 14px Inter, system-ui, sans-serif;
+    color: var(--bbib-ink);
+}
+
+.bbib-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    border: none;
+    border-radius: 8px;
+    font: 700 16px Inter, system-ui, sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.bbib-shell button.bbib-btn:disabled,
+.bbib-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.bbib-shell button.bbib-btn-primary:not(:disabled) {
+    opacity: 1;
+    pointer-events: auto;
+    background: var(--bbib-coral);
+    color: #fff;
+}
+
+.bbib-shell button.bbib-btn-primary,
+.bbib-btn-primary {
+    background: var(--bbib-coral);
+    color: #fff;
+}
+
+.bbib-shell button.bbib-btn-dark,
+.bbib-btn-dark {
+    background: var(--bbib-dark-btn);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 44px;
+}
+
+.bbib-btn-link {
+    background: transparent;
+    border: none;
+    color: var(--bbib-teal);
+    font: 600 13px Inter, system-ui, sans-serif;
+    cursor: pointer;
+    padding: 0;
+    align-self: flex-start;
+}
+
+.bbib-shop {
+    border: 1px solid var(--bbib-line);
+    border-radius: 4px;
+}
+
+.bbib-shop-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: none;
+    border-bottom: 1px solid var(--bbib-line);
+    background: #fff;
+    font: 600 12px Inter, system-ui, sans-serif;
+    color: var(--bbib-ink);
+    text-align: left;
+}
+
+.bbib-shop-body {
+    padding: 16px 12px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.bbib-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.bbib-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 34px;
+    font-size: 13px;
+}
+
+.bbib-check input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--bbib-teal);
+}
+
+.bbib-areas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bbib-areas h2 {
+    font-family: Nunito, Inter, sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--bbib-heading);
+}
+
+.bbib-area-box {
+    border: 1px solid #DDE5E5;
+    border-radius: 8px;
+    padding: 4px 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.bbib-area-row {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+}
+
+.bbib-area-row + .bbib-area-row {
+    border-top: 1px solid #E4EAEA;
+}
+
+.bbib-area-num {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #9FD9D5;
+    background: #EEF9F8;
+    color: var(--bbib-heading);
+    font-size: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bbib-area-row strong {
+    display: block;
+    font-size: 13px;
+    color: var(--bbib-heading);
+}
+
+.bbib-area-row span {
+    display: block;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--bbib-body);
+}
+
+.bbib-shell button.bbib-btn-dark:not(:disabled) {
+    opacity: 1;
+    pointer-events: auto;
+    background: var(--bbib-dark-btn);
+    color: #fff;
+}
+
+.bbib-cover {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bbib-cover h1 {
+    font-family: Nunito, Inter, sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.2;
+    color: var(--bbib-heading);
+}
+
+.bbib-cover p {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--bbib-ink);
+}
+
+.bbib-micro {
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--bbib-muted);
+    text-align: center;
+}
+
+.bbib-money {
+    border: 1px solid #F3E6C4;
+    border-radius: 6px;
+    background: var(--bbib-cream-amt);
+    padding: 20px 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bbib-money h1 {
+    font: 600 15px/1.35 Inter, system-ui, sans-serif;
+    color: var(--bbib-ink);
+}
+
+.bbib-money p {
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--bbib-body);
+}
+
+.bbib-money-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #C9D3D3;
+    border-radius: 8px;
+    background: #fff;
+    padding: 6px 10px;
+    margin-top: 4px;
+}
+
+.bbib-money-input .bbib-currency {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.bbib-money-input input {
+    flex: 1;
+    min-width: 0;
+    min-height: 52px;
+    border: 1px solid #C9D3D3;
+    border-radius: 6px;
+    padding: 0 10px;
+    font: 600 24px Inter, system-ui, sans-serif;
+    background: #fff;
+}
+
+.bbib-money-input input:disabled {
+    background: #f5f7f7;
+    color: var(--bbib-muted);
+}
+
+.bbib-money-input .bbib-cad {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--bbib-muted);
+}
+
+.bbib-money .bbib-check {
+    font-size: 10px;
+    min-height: 32px;
+}
+
+.bbib-money .bbib-check input {
+    width: 14px;
+    height: 14px;
+}
+
+.bbib-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.bbib-summary-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.bbib-summary-row small {
+    color: var(--bbib-muted);
+    font-size: 11px;
+}
+
+.bbib-summary-row strong {
+    font-size: 18px;
+    color: var(--bbib-heading);
+}
+
+.bbib-error {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #FDECEC;
+    color: #8A1F1F;
+    font-size: 12px;
+}
+
+.bbib-notice {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--bbib-body);
+}
+
+.bbib-footer {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    padding: 8px 0 0;
+}
+
+.bbib-footer button {
+    background: transparent;
+    border: none;
+    color: var(--bbib-teal);
+    font: 600 12px Inter, system-ui, sans-serif;
+    cursor: pointer;
+    padding: 0;
+}
+
+#bbib-notice {
+    border: 1px solid var(--bbib-line);
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 340px;
+}
+
+#bbib-notice::backdrop {
+    background: rgba(46, 59, 59, 0.35);
+}
+
+#bbib-notice h2 {
+    font-family: Nunito, Inter, sans-serif;
+    font-size: 18px;
+    color: var(--bbib-heading);
+    margin-bottom: 10px;
+}
+
+#bbib-notice p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--bbib-body);
+    margin-bottom: 16px;
+}
+
+.bbib-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
