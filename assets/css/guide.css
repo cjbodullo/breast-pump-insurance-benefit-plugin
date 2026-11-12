@@ -107,6 +107,47 @@
     color: var(--bbib-muted);
 }
 
+.bbib-loading {
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.bbib-shell .bbib-loading-spinner {
+    display: block;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    overflow: visible;
+    animation: bbib-spin 0.7s linear infinite;
+}
+
+.bbib-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@keyframes bbib-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bbib-shell .bbib-loading-spinner {
+        animation: none;
+    }
+}
+
 .bbib-progress {
     display: flex;
     justify-content: space-between;
@@ -211,17 +252,29 @@
     color: var(--bbib-ink);
 }
 
+.bbib-shell button.bbib-btn,
 .bbib-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     gap: 8px;
+    width: 100%;
     min-height: 48px;
-    border: none;
-    border-radius: 8px;
-    font: 700 16px Inter, system-ui, sans-serif;
-    text-decoration: none;
+    height: auto !important;
+    margin: 0;
+    padding: 12px 16px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    font: 700 16px/1.2 Inter, system-ui, sans-serif !important;
+    letter-spacing: normal !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    text-transform: none !important;
+    line-height: 1.2 !important;
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 .bbib-shell button.bbib-btn:disabled,
@@ -234,22 +287,22 @@
 .bbib-shell button.bbib-btn-primary:not(:disabled) {
     opacity: 1;
     pointer-events: auto;
-    background: var(--bbib-coral);
-    color: #fff;
+    background: var(--bbib-coral) !important;
+    color: #fff !important;
 }
 
 .bbib-shell button.bbib-btn-primary,
 .bbib-btn-primary {
-    background: var(--bbib-coral);
-    color: #fff;
+    background: var(--bbib-coral) !important;
+    color: #fff !important;
 }
 
 .bbib-shell button.bbib-btn-dark,
 .bbib-btn-dark {
-    background: var(--bbib-dark-btn);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
+    background: var(--bbib-dark-btn) !important;
+    color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
     min-height: 44px;
 }
 
@@ -317,53 +370,68 @@
     gap: 10px;
 }
 
-.bbib-areas h2 {
+.bbib-shell .bbib-areas h2 {
+    margin: 0;
     font-family: Nunito, Inter, sans-serif;
     font-weight: 700;
     font-size: 17px;
+    line-height: 1.3;
     color: var(--bbib-heading);
 }
 
 .bbib-area-box {
     border: 1px solid #DDE5E5;
     border-radius: 8px;
-    padding: 4px 12px;
+    background: #fff;
+    padding: 2px 14px;
     display: flex;
     flex-direction: column;
 }
 
 .bbib-area-row {
     display: flex;
+    align-items: flex-start;
     gap: 12px;
-    padding: 12px 0;
+    padding: 14px 0;
 }
 
 .bbib-area-row + .bbib-area-row {
     border-top: 1px solid #E4EAEA;
 }
 
-.bbib-area-num {
+.bbib-shell .bbib-area-num {
     flex-shrink: 0;
     width: 20px;
     height: 20px;
+    margin-top: 1px;
     border-radius: 50%;
     border: 1px solid #9FD9D5;
     background: #EEF9F8;
     color: var(--bbib-heading);
     font-size: 10px;
     font-weight: 600;
+    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.bbib-area-row strong {
+.bbib-area-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.bbib-shell .bbib-area-copy strong {
     display: block;
     font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
     color: var(--bbib-heading);
 }
 
-.bbib-area-row span {
+.bbib-shell .bbib-area-copy span {
     display: block;
     font-size: 11px;
     line-height: 1.55;
@@ -373,8 +441,8 @@
 .bbib-shell button.bbib-btn-dark:not(:disabled) {
     opacity: 1;
     pointer-events: auto;
-    background: var(--bbib-dark-btn);
-    color: #fff;
+    background: var(--bbib-dark-btn) !important;
+    color: #fff !important;
 }
 
 .bbib-cover {
@@ -474,10 +542,78 @@
     height: 14px;
 }
 
+.bbib-thanks {
+    align-items: stretch;
+}
+
+.bbib-thanks-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding: 8px 0 4px;
+}
+
+.bbib-thanks-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #EEF9F8;
+    border: 1px solid #9FD9D5;
+    color: var(--bbib-heading);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bbib-thanks-kicker {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--bbib-teal);
+}
+
+.bbib-shell .bbib-thanks-hero h1 {
+    margin: 0;
+    font-family: Nunito, Inter, sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.2;
+    color: var(--bbib-heading);
+}
+
+.bbib-thanks-copy {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--bbib-body);
+}
+
+.bbib-thanks-note {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--bbib-muted);
+}
+
 .bbib-summary {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
+    border: 1px solid var(--bbib-line);
+    border-radius: 8px;
+    padding: 16px 14px;
+    background: #fff;
+}
+
+.bbib-summary-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--bbib-muted);
 }
 
 .bbib-summary-row {
@@ -489,6 +625,18 @@
 .bbib-summary-row small {
     color: var(--bbib-muted);
     font-size: 11px;
+}
+
+.bbib-summary-row.is-amount strong {
+    font-size: 22px;
+}
+
+.bbib-thanks .bbib-actions {
+    align-items: center;
+}
+
+.bbib-thanks .bbib-btn-link {
+    align-self: center;
 }
 
 .bbib-summary-row strong {

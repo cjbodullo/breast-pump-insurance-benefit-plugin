@@ -7,7 +7,7 @@
         return;
     }
     if (!cfg.insurers || !Object.keys(cfg.insurers).length) {
-        root.innerHTML = '<p class="bbib-intro">Please refresh the page and try again.</p>';
+        root.innerHTML = '<div class="bbib-loading"><p class="bbib-intro" style="padding:0;text-align:center">Please refresh the page and try again.</p></div>';
         return;
     }
 
@@ -158,30 +158,58 @@
     function syncStep2FromDom() {
         var retailerEl = root.querySelector('#retailer');
         var timingEl = root.querySelector('#timing');
+        var amountEl = root.querySelector('#amount');
+        var noAmountEl = root.querySelector('input[name="noAmount"]');
         if (retailerEl) {
             state.retailer = retailerEl.value || '';
         }
         if (timingEl) {
             state.timing = timingEl.value || '';
         }
+        if (noAmountEl) {
+            state.noAmount = !!noAmountEl.checked;
+        }
+        if (amountEl && !state.noAmount) {
+            var rawAmount = String(amountEl.value || '').trim();
+            if (rawAmount === '' || rawAmount === '000.00') {
+                state.amount = '';
+            } else {
+                var digits = normalizeAmount(rawAmount);
+                state.amount = digits === '' ? '' : String(Number(digits));
+            }
+        }
     }
 
-    function refreshInsurerButton() {
-        if (state.view !== 'page2') {
-            return;
-        }
-        syncStep2FromDom();
-        var guide = document.getElementById('bbib-guide');
-        var btn = guide ? guide.querySelector('[data-action="open-insurer"], [data-action="enter-amount"]') : null;
+    function setButtonEnabled(btn, enabled) {
         if (!btn) {
             return;
         }
-        if (canAdvanceStep2()) {
+        if (enabled) {
             btn.disabled = false;
             btn.removeAttribute('disabled');
         } else {
             btn.disabled = true;
             btn.setAttribute('disabled', 'disabled');
+        }
+    }
+
+    function refreshInsurerButton() {
+        var guide = document.getElementById('bbib-guide');
+        if (!guide) {
+            return;
+        }
+        syncStep2FromDom();
+        if (state.view === 'page2') {
+            setButtonEnabled(
+                guide.querySelector('[data-action="open-insurer"], [data-action="enter-amount"]'),
+                canGoToInsurer()
+            );
+        }
+        if (state.view === 'amount') {
+            setButtonEnabled(
+                guide.querySelector('[data-action="close-amount"]'),
+                isValidAmount()
+            );
         }
         save();
     }
@@ -194,7 +222,41 @@
     }
 
     function normalizeAmount(value) {
-        return String(value || '').replace(/[^\d]/g, '').slice(0, 3);
+        // Only the whole-dollar part — ignore ".00" so "30.00" stays "30", not "300".
+        var whole = String(value || '').split('.')[0];
+        return whole.replace(/[^\d]/g, '').slice(0, 3);
+    }
+
+    function formatAmountDisplay(amount) {
+        var digits = normalizeAmount(amount);
+        if (digits === '') {
+            return '000.00';
+        }
+        return String(Number(digits)) + '.00';
+    }
+
+    function finishAmount(actionEl) {
+        syncStep2FromDom();
+        state.error = '';
+        if (!isValidAmount()) {
+            state.error = 'Enter a valid dollar amount, or select "I couldn\'t find a dollar amount".';
+            refreshInsurerButton();
+            render();
+            return;
+        }
+        if (actionEl) {
+            actionEl.disabled = true;
+        }
+        submitResponse().then(function () {
+            go('thanks');
+        }).catch(function (err) {
+            if (err && err.status === 409) {
+                state.error = 'These answers changed. Refresh the page and try again.';
+            } else {
+                state.error = (err && err.message) || 'We could not save your answers. Please try again.';
+            }
+            render();
+        });
     }
 
     function currentInsurer() {
@@ -279,7 +341,7 @@
         return '<section class="bbib-shop"><button type="button" class="bbib-shop-toggle" data-action="toggle-shop" aria-expanded="' + (state.shopOpen ? 'true' : 'false') + '">Your breast pump shopping plans<span aria-hidden="true">' + (state.shopOpen ? '−' : '+') + '</span></button>' + body + '</section>';
     }
 
-    function canAdvanceStep2() {
+    function canGoToInsurer() {
         return state.brands.length > 0 && !!String(state.retailer || '').trim() && !!String(state.timing || '').trim();
     }
 
@@ -293,9 +355,17 @@
         var rows = places.map(function (area, i) {
             var title = Array.isArray(area) ? area[0] : (area.title || '');
             var body = Array.isArray(area) ? area[1] : (area.instructions || '');
-            return '<div class="bbib-area-row"><span class="bbib-area-num">' + (i + 1) + '</span><div><strong>' + esc(title) + '</strong><span>' + esc(body) + '</span></div></div>';
+            return '<div class="bbib-area-row"><span class="bbib-area-num" aria-hidden="true">' + (i + 1) + '</span><div class="bbib-area-copy"><strong>' + esc(title) + '</strong><span>' + esc(body) + '</span></div></div>';
         }).join('');
         return '<section class="bbib-areas"><h2>Places to check in your plan</h2><div class="bbib-area-box">' + rows + '</div></section>';
+    }
+
+    function amountCard() {
+        var display = state.noAmount ? '' : formatAmountDisplay(state.amount);
+        return '<section class="bbib-money"><h1>How much is available toward your breast pump?</h1><p>Enter the dollar amount your insurer showed specifically for a breast pump.</p>' +
+            '<div class="bbib-money-input"><span class="bbib-currency">$</span><input type="text" inputmode="decimal" name="amount" id="amount" value="' + esc(display) + '" placeholder="000.00" aria-label="Dollar amount"' + (state.noAmount ? ' disabled' : '') + '><span class="bbib-cad">CAD</span></div>' +
+            '<label class="bbib-check"><input type="checkbox" name="noAmount"' + (state.noAmount ? ' checked' : '') + '>I couldn\'t find a dollar amount</label></section>' +
+            '<p class="bbib-notice">' + esc(cfg.notice || '') + '</p>';
     }
 
     function page2() {
@@ -303,7 +373,7 @@
         var name = entry ? entry.name : '';
         var login = entry ? (entry.login || entry.existing_help || entry.existingHelp || '') : '';
         var url = entry && entry.url ? entry.url : '';
-        var ready = canAdvanceStep2();
+        var ready = canGoToInsurer();
         var disabledAttr = ready ? '' : ' disabled';
         var action = url
             ? '<button type="button" class="bbib-btn bbib-btn-dark" data-action="open-insurer"' + disabledAttr + '>Go to ' + esc(name) + ' Website<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 4h6v6"></path><path d="M20 4l-9 9"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></button><p class="bbib-micro">Opens in a new tab and continues to your results here<br>so you can report what you find.</p>'
@@ -323,11 +393,8 @@
         return '<main class="bbib-page">' +
             progress('STEP 2 OF 3 / FIND YOUR COVERAGE', 2) +
             errorBox() +
-            '<section class="bbib-money"><h1>How much is available toward your breast pump?</h1><p>Enter the dollar amount your insurer showed specifically for a breast pump.</p>' +
-            '<div class="bbib-money-input"><span class="bbib-currency">$</span><input type="text" inputmode="numeric" name="amount" id="amount" value="' + esc(state.amount) + '" aria-label="Dollar amount"' + (state.noAmount ? ' disabled' : '') + '><span class="bbib-cad">CAD</span></div>' +
-            '<label class="bbib-check"><input type="checkbox" name="noAmount"' + (state.noAmount ? ' checked' : '') + '>I couldn\'t find a dollar amount</label></section>' +
-            '<p class="bbib-notice">' + esc(cfg.notice || '') + '</p>' +
-            '<button type="button" class="bbib-btn bbib-btn-primary" data-action="close-amount">Close</button>' +
+            amountCard() +
+            '<button type="button" class="bbib-btn bbib-btn-primary" data-action="close-amount"' + (isValidAmount() ? '' : ' disabled') + '>Close</button>' +
             '<button type="button" class="bbib-btn-link" data-action="back-page2">Back</button>' +
             '</main>' + footer();
     }
@@ -335,17 +402,26 @@
     function thanks() {
         var money = state.noAmount
             ? 'I couldn\'t find a dollar amount'
-            : ('$' + String(state.amount || '0') + ' CAD');
-        return '<main class="bbib-page">' +
-            progress('STEP 3 OF 3 / YOUR SUMMARY', 3) +
+            : ('$' + formatAmountDisplay(state.amount));
+        return '<main class="bbib-page bbib-thanks">' +
+            progress('STEP 3 OF 3 / THANK YOU', 3) +
             errorBox() +
+            '<div class="bbib-thanks-hero">' +
+            '<div class="bbib-thanks-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></div>' +
+            '<p class="bbib-thanks-kicker">GUIDE COMPLETE</p>' +
+            '<h1>Thank you</h1>' +
+            '<p class="bbib-thanks-copy">Your answers were saved. Here is what you reported.</p>' +
+            '</div>' +
             '<section class="bbib-summary">' +
+            '<div class="bbib-summary-title">Your reported results</div>' +
             '<div class="bbib-summary-row"><small>Insurance company</small><strong>' + esc(insurerName()) + '</strong></div>' +
-            '<div class="bbib-summary-row"><small>Dollar amount you reported</small><strong>' + esc(money) + '</strong><small>Self-reported · Not a payment guarantee</small></div>' +
+            '<div class="bbib-summary-row"><small>Email</small><strong>' + esc(state.email) + '</strong></div>' +
+            '<div class="bbib-summary-row is-amount"><small>Dollar amount you reported</small><strong>' + esc(money) + '</strong><small>CAD · Self-reported · Not a payment guarantee</small></div>' +
             '</section>' +
+            '<p class="bbib-thanks-note">Your insurer decides eligibility and reimbursement. A dollar limit may be subject to a percentage, remaining benefits and other conditions.</p>' +
             '<div class="bbib-actions">' +
-            '<button type="button" class="bbib-btn bbib-btn-primary" data-action="edit">Edit my answers</button>' +
             '<button type="button" class="bbib-btn bbib-btn-dark" data-action="return">Return to BabyBrands</button>' +
+            '<button type="button" class="bbib-btn-link" data-action="edit">Edit my answers</button>' +
             '</div>' +
             '</main>' + footer();
     }
@@ -642,18 +718,18 @@
                 go('page1');
                 return;
             }
-            if (action === 'back-page2') {
-                go('page2');
-                return;
-            }
             if (action === 'toggle-shop') {
                 state.shopOpen = !state.shopOpen;
                 render();
                 return;
             }
+            if (action === 'back-page2') {
+                go('page2');
+                return;
+            }
             if (action === 'open-insurer') {
                 syncStep2FromDom();
-                if (!canAdvanceStep2()) {
+                if (!canGoToInsurer()) {
                     refreshInsurerButton();
                     return;
                 }
@@ -667,7 +743,7 @@
             }
             if (action === 'enter-amount') {
                 syncStep2FromDom();
-                if (!canAdvanceStep2()) {
+                if (!canGoToInsurer()) {
                     refreshInsurerButton();
                     return;
                 }
@@ -675,23 +751,7 @@
                 return;
             }
             if (action === 'close-amount') {
-                state.error = '';
-                if (!isValidAmount()) {
-                    state.error = 'Enter a valid dollar amount, or select "I couldn\'t find a dollar amount".';
-                    render();
-                    return;
-                }
-                actionEl.disabled = true;
-                submitResponse().then(function () {
-                    go('thanks');
-                }).catch(function (err) {
-                    if (err && err.status === 409) {
-                        state.error = 'These answers changed. Refresh the page and try again.';
-                    } else {
-                        state.error = (err && err.message) || 'We could not save your answers. Please try again.';
-                    }
-                    render();
-                });
+                finishAmount(actionEl);
                 return;
             }
             if (action === 'edit') {
@@ -744,6 +804,7 @@
                     state.amount = '';
                 }
                 render();
+                refreshInsurerButton();
                 return;
             }
             if (name === 'brands') {
@@ -779,12 +840,18 @@
             }
             if (name === 'amount') {
                 var cleaned = normalizeAmount(event.target.value);
-                if (event.target.value !== cleaned) {
-                    event.target.value = cleaned;
-                }
-                state.amount = cleaned;
-                save();
+                state.amount = cleaned === '' ? '' : String(Number(cleaned));
+                event.target.value = cleaned;
+                refreshInsurerButton();
+                return;
             }
+        });
+
+        shell.addEventListener('focusin', function (event) {
+            if (!root.contains(event.target) || event.target.name !== 'amount' || state.noAmount) {
+                return;
+            }
+            event.target.value = state.amount ? String(state.amount) : '';
         });
 
         shell.addEventListener('focusout', function (event) {
@@ -793,6 +860,11 @@
             }
             if (event.target.name === 'email' || event.target.name === 'otherInsurer' || event.target.name === 'insurer') {
                 refreshNextButton();
+            }
+            if (event.target.name === 'amount' && !state.noAmount) {
+                syncStep2FromDom();
+                event.target.value = formatAmountDisplay(state.amount);
+                refreshInsurerButton();
             }
         });
     }

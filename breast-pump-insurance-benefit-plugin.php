@@ -92,8 +92,19 @@ function bbib_render_shortcode($atts)
     ob_start();
     ?>
     <div class="bbib-shell" id="bbib-guide">
+        <style>
+            #bbib-guide .bbib-loading{min-height:220px;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+            #bbib-guide .bbib-loading-spinner{display:block;width:28px;height:28px;animation:bbib-spin .7s linear infinite}
+            @keyframes bbib-spin{to{transform:rotate(360deg)}}
+            @media (prefers-reduced-motion:reduce){#bbib-guide .bbib-loading-spinner{animation:none}}
+        </style>
         <div id="bbib-view">
-            <p class="bbib-intro"><?php esc_html_e('Loading the guide…', 'breast-pump-insurance-benefit-plugin'); ?></p>
+            <div class="bbib-loading" role="status" aria-label="<?php echo esc_attr__('Loading', 'breast-pump-insurance-benefit-plugin'); ?>">
+                <svg class="bbib-loading-spinner" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+                    <circle cx="14" cy="14" r="11" fill="none" stroke="#E4EAEA" stroke-width="3"></circle>
+                    <circle cx="14" cy="14" r="11" fill="none" stroke="#F47174" stroke-width="3" stroke-linecap="round" stroke-dasharray="50 70"></circle>
+                </svg>
+            </div>
         </div>
         <dialog id="bbib-notice">
             <h2 id="bbib-notice-title"></h2>
