@@ -95,10 +95,48 @@
     }
 
     function normalizeTiming(label) {
+        // API / guide labels → benefit UI labels.
         var map = {
             'Within 1-3 months': 'In 1–3 months',
+            'Within 1–3 months': 'In 1–3 months',
             'More than 3 months from now': 'In 3+ months',
             'I already purchased one': 'Already bought'
+        };
+        return map[label] || label;
+    }
+
+    function toApiTiming(label) {
+        // Benefit UI labels → labels the shared REST API accepts.
+        var map = {
+            'Within 30 days': 'Within 30 days',
+            'In 1–3 months': 'Within 1-3 months',
+            'In 1-3 months': 'Within 1-3 months',
+            'Within 1-3 months': 'Within 1-3 months',
+            'In 3+ months': 'More than 3 months from now',
+            'More than 3 months from now': 'More than 3 months from now',
+            'Already bought': 'I already purchased one',
+            'I already purchased one': 'I already purchased one',
+            "I haven't decided": "I haven't decided"
+        };
+        return map[label] || label;
+    }
+
+    function toApiRetailer(label) {
+        var map = {
+            'Amazon.ca': 'Amazon.ca',
+            'Walmart': 'Walmart',
+            'Shoppers Drug Mart': 'Shoppers Drug Mart',
+            'Babies R Us': 'Babies R Us',
+            'Brand website': 'Brand website',
+            'Other': 'Other',
+            // Legacy / guide labels if restored from an older session.
+            'Snuggle Bugz': 'Snuggle Bugz',
+            'West Coast Kids': 'West Coast Kids',
+            'Well.ca': 'Well.ca',
+            'Rexall': 'Rexall',
+            'Clément': 'Clément',
+            'London Drugs': 'London Drugs',
+            'Best Buy': 'Best Buy'
         };
         return map[label] || label;
     }
@@ -627,8 +665,8 @@
             amount: noAmount ? '' : String(state.amount || ''),
             noAmount: noAmount,
             brands: state.brands,
-            retailer: state.retailer,
-            timing: state.timing,
+            retailer: toApiRetailer(state.retailer),
+            timing: toApiTiming(state.timing),
             noticeVersion: cfg.noticeVersion || ''
         };
     }
