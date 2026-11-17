@@ -24,6 +24,7 @@
         email: '',
         amount: '',
         noAmount: false,
+        percent: '',
         brands: [],
         retailer: '',
         timing: '',
@@ -216,6 +217,14 @@
                 state.amount = digits === '' ? '' : String(Number(digits));
             }
         }
+        var percentEl = root.querySelector('#percent');
+        if (percentEl && !state.noAmount) {
+            var digitsPct = normalizePercent(percentEl.value);
+            state.percent = digitsPct === '' ? '' : String(Number(digitsPct));
+        }
+        if (state.noAmount) {
+            state.percent = '';
+        }
     }
 
     function setButtonEnabled(btn, enabled) {
@@ -256,7 +265,24 @@
         if (state.noAmount) {
             return true;
         }
-        return /^\d{1,3}$/.test(String(state.amount || '')) && Number(state.amount) <= 999;
+        return /^\d{1,3}$/.test(String(state.amount || '')) && Number(state.amount) <= 999 && isValidPercent();
+    }
+
+    function isValidPercent() {
+        // Optional: blank is fine, otherwise a whole number from 0 to 100.
+        var pct = String(state.percent || '');
+        return pct === '' || (/^\d{1,3}$/.test(pct) && Number(pct) <= 100);
+    }
+
+    function cleanPercent(value) {
+        // Server stores a decimal ("92.00"); show it as a whole number ("92").
+        var digits = normalizePercent(value);
+        return digits === '' ? '' : String(Number(digits));
+    }
+
+    function normalizePercent(value) {
+        var whole = String(value || '').split('.')[0];
+        return whole.replace(/[^\d]/g, '').slice(0, 3);
     }
 
     function normalizeAmount(value) {
@@ -277,7 +303,9 @@
         syncStep2FromDom();
         state.error = '';
         if (!isValidAmount()) {
-            state.error = 'Enter a valid dollar amount, or select "I couldn\'t find a dollar amount".';
+            state.error = !state.noAmount && !isValidPercent()
+                ? 'Enter a coverage percentage from 0 to 100, or leave it blank.'
+                : 'Enter a valid dollar amount, or select "I couldn\'t find a dollar amount".';
             refreshInsurerButton();
             render();
             return;
@@ -403,6 +431,8 @@
         return '<section class="bbib-money"><h1>How much is available toward your breast pump?</h1><p>Enter the dollar amount your insurer showed specifically for a breast pump.</p>' +
             '<div class="bbib-money-input"><span class="bbib-currency">$</span><input type="text" inputmode="decimal" name="amount" id="amount" value="' + esc(display) + '" placeholder="000.00" aria-label="Dollar amount"' + (state.noAmount ? ' disabled' : '') + '><span class="bbib-cad">CAD</span></div>' +
             '<label class="bbib-check"><input type="checkbox" name="noAmount"' + (state.noAmount ? ' checked' : '') + '>I couldn\'t find a dollar amount</label></section>' +
+            '<section class="bbib-money bbib-percent"><h1><label for="percent">What percentage of your coverage goes toward a breast pump?</label></h1><p>Optional. Leave blank if your plan doesn\'t list a percentage.</p>' +
+            '<div class="bbib-money-input"><span class="bbib-currency">%</span><input type="text" inputmode="numeric" maxlength="3" name="percent" id="percent" value="' + esc(state.noAmount ? '' : cleanPercent(state.percent)) + '" placeholder="000"' + (state.noAmount ? ' disabled' : '') + '></div></section>' +
             '<p class="bbib-notice">' + esc(cfg.notice || '') + '</p>';
     }
 
@@ -437,6 +467,18 @@
             '</main>' + footer();
     }
 
+    function estimateBox() {
+        // Estimate = dollar amount × coverage percentage. Only when both were reported.
+        var amount = normalizeAmount(state.amount);
+        var pct = cleanPercent(state.percent);
+        if (state.noAmount || amount === '' || pct === '') {
+            return '';
+        }
+        var estimate = (Number(amount) * Number(pct) / 100).toFixed(2);
+        return '<section class="bbib-estimate"><p>The below amount is an estimate of what your plan will cover.</p>' +
+            '<strong>$' + esc(estimate) + '</strong><small>CAD · ' + esc(pct) + '% of $' + esc(formatAmountDisplay(amount)) + '</small></section>';
+    }
+
     function thanks() {
         var money = state.noAmount
             ? 'I couldn\'t find a dollar amount'
@@ -455,7 +497,11 @@
             '<div class="bbib-summary-row"><small>Insurance company</small><strong>' + esc(insurerName()) + '</strong></div>' +
             '<div class="bbib-summary-row"><small>Email</small><strong>' + esc(state.email) + '</strong></div>' +
             '<div class="bbib-summary-row is-amount"><small>Dollar amount you reported</small><strong>' + esc(money) + '</strong><small>CAD · Self-reported · Not a payment guarantee</small></div>' +
+            (!state.noAmount && state.percent !== ''
+                ? '<div class="bbib-summary-row"><small>Coverage percentage you reported</small><strong>' + esc(cleanPercent(state.percent)) + '%</strong></div>'
+                : '') +
             '</section>' +
+            estimateBox() +
             '<p class="bbib-thanks-note">Your insurer decides eligibility and reimbursement. A dollar limit may be subject to a percentage, remaining benefits and other conditions.</p>' +
             '<div class="bbib-actions">' +
             '<button type="button" class="bbib-btn bbib-btn-dark" data-action="return">Return to BabyBrands</button>' +
@@ -580,6 +626,7 @@
             state.email = response.email || state.email;
             state.amount = response.amount || '';
             state.noAmount = !!response.noAmount;
+            state.percent = cleanPercent(response.percent);
             state.brands = response.brands || [];
             state.retailer = response.retailer || '';
             state.timing = normalizeTiming(response.timing || '');
@@ -664,6 +711,7 @@
             email: String(state.email || '').trim(),
             amount: noAmount ? '' : String(state.amount || ''),
             noAmount: noAmount,
+            percent: noAmount ? '' : String(state.percent || ''),
             brands: state.brands,
             retailer: toApiRetailer(state.retailer),
             timing: toApiTiming(state.timing),
@@ -696,6 +744,7 @@
                 state.submitted = true;
                 state.amount = data.response.amount || state.amount;
                 state.noAmount = !!data.response.noAmount;
+                state.percent = cleanPercent(data.response.percent);
                 if (data.response.timing) {
                     state.timing = normalizeTiming(data.response.timing);
                 }
@@ -813,6 +862,7 @@
                 if (state.insurer && state.insurer !== event.target.value) {
                     state.amount = '';
                     state.noAmount = false;
+                    state.percent = '';
                 }
                 state.insurer = event.target.value;
                 if (state.insurer !== 'other') {
@@ -840,6 +890,7 @@
                 state.noAmount = !!event.target.checked;
                 if (state.noAmount) {
                     state.amount = '';
+                    state.percent = '';
                 }
                 render();
                 refreshInsurerButton();
@@ -880,6 +931,13 @@
                 var cleaned = normalizeAmount(event.target.value);
                 state.amount = cleaned === '' ? '' : String(Number(cleaned));
                 event.target.value = cleaned;
+                refreshInsurerButton();
+                return;
+            }
+            if (name === 'percent') {
+                var cleanedPct = normalizePercent(event.target.value);
+                state.percent = cleanedPct === '' ? '' : String(Number(cleanedPct));
+                event.target.value = cleanedPct;
                 refreshInsurerButton();
                 return;
             }

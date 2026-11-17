@@ -532,6 +532,15 @@
     color: var(--bbib-muted);
 }
 
+.bbib-money.bbib-percent {
+    margin-top: 12px;
+}
+
+.bbib-money h1 label {
+    font: inherit;
+    color: inherit;
+}
+
 .bbib-money .bbib-check {
     font-size: 10px;
     min-height: 32px;
@@ -629,6 +638,34 @@
 
 .bbib-summary-row.is-amount strong {
     font-size: 22px;
+}
+
+.bbib-estimate {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 1px solid #F3E6C4;
+    border-radius: 8px;
+    padding: 16px 14px;
+    background: var(--bbib-cream-amt);
+}
+
+.bbib-estimate p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--bbib-ink);
+}
+
+.bbib-estimate strong {
+    font-size: 24px;
+    color: var(--bbib-heading);
+}
+
+.bbib-estimate small {
+    font-size: 11px;
+    color: var(--bbib-muted);
 }
 
 .bbib-thanks .bbib-actions {
